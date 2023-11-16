@@ -1,0 +1,54 @@
+################################################################################
+# Node-RED Stack or Compose
+################################################################################
+# docker stack deploy node-red --compose-file docker-compose-node-red.yml
+# docker-compose -f docker-compose-node-red.yml -p myNoderedProject up
+################################################################################
+version: "3.8"
+
+services:
+
+  mongo-service:
+    image: mongo:latest
+    container_name: container_mongo
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    networks:
+      network_backend:
+        ipv4_address: 10.16.1.2
+    volumes:
+      - volume_mongo:/data/db
+
+  nodered-service:
+    image: nodered/node-red:latest
+    container_name: container_nodered
+    restart: always
+    environment:
+      - TZ=Asia/Bangkok
+    ports:
+      - "1880:1880"
+    networks:
+      network_backend:
+        ipv4_address: 10.16.1.3
+    volumes:
+      - volume_nodered:/data
+
+volumes:
+  volume_mongo:
+  volume_nodered:
+
+networks:
+  network_backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.16.1.0/24
+          gateway: 10.16.1.1
