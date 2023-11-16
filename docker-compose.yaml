@@ -8,6 +8,21 @@ version: "3.8"
 
 services:
 
+  emqx1:
+    image: emqx/emqx:latest
+    environment:
+    - "EMQX_NAME=emqx"
+    - "EMQX_HOST=node1.emqx.io"
+    - "EMQX_CLUSTER__DISCOVERY_STRATEGY=static"
+    - "EMQX_CLUSTER__STATIC__SEEDS=[emqx@node1.emqx.io, emqx@node2.emqx.io]"
+    ports:
+      - "1883:1883"
+    networks:
+      network_backend:
+        ipv4_address: 10.16.1.4
+        aliases:
+        - node1.emqx.io
+
   mongo-service:
     image: mongo:latest
     container_name: container_mongo
